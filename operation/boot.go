@@ -28,21 +28,16 @@ func ShutDown(uuid libvirt.UUID, l *libvirt.Libvirt) {
 	}
 }
 
-func DomainState(name string, l *libvirt.Libvirt) {
+func DomainState(name string, l *libvirt.Libvirt) (state int32, reason int32, err error) {
 	domain, err := l.DomainLookupByName(name)
 	if err != nil {
-		fmt.Printf("Unable to get domain instance state, %v\n", err)
+		return 5, 5, fmt.Errorf("unable to get domain instance state, %v", err)
 	}
 	params := libvirt.DomainGetStateArgs{
 		Dom:   domain,
 		Flags: uint32(libvirt.DomainNostate),
 	}
-	state, reason, er := l.DomainGetState(params.Dom, params.Flags)
-	if er != nil {
-		fmt.Printf("Unable to get state:  %v\n", er)
-	} else {
-		fmt.Printf("%d, %d\n", state, reason)
-	}
+	return l.DomainGetState(params.Dom, params.Flags)
 }
 
 func Reboot(uuid libvirt.UUID, l *libvirt.Libvirt) {

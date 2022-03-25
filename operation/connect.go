@@ -8,11 +8,11 @@ import (
 	"github.com/digitalocean/go-libvirt"
 )
 
-type domainInstance struct {
+type DomainInstance struct {
 	Socket string
 }
 
-func (d *domainInstance) Dial() (net.Conn, error) {
+func (d *DomainInstance) Dial() (net.Conn, error) {
 	c, err := net.DialTimeout("unix", d.Socket, 2*time.Second)
 	if err != nil {
 		return nil, fmt.Errorf("%v", err)
@@ -21,7 +21,7 @@ func (d *domainInstance) Dial() (net.Conn, error) {
 }
 
 func Connect() (*libvirt.Libvirt, error) {
-	l := libvirt.NewWithDialer(&domainInstance{
+	l := libvirt.NewWithDialer(&DomainInstance{
 		Socket: "/var/run/libvirt/libvirt-sock",
 	})
 
