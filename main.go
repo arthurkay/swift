@@ -5,12 +5,12 @@ import (
 	"log"
 	"net"
 	"os"
-	"petricoh/config"
-	"petricoh/utils"
+	"petricoh/operation"
 	"text/tabwriter"
 	"time"
 
 	"github.com/digitalocean/go-libvirt"
+	libvirtxml "libvirt.org/libvirt-go-xml"
 )
 
 var (
@@ -60,20 +60,89 @@ func main() {
 	for _, d := range domains {
 		fmt.Fprintf(tabWriter, "%d\t%s\t%x\n", d.ID, d.Name, d.UUID)
 	}
-	//operation.Undefine(domains[0], l)
-
-	inst := config.ComputeResources{
-		Name:     "Test Instance",
-		Memory:   1024,
-		Vcpu:     2,
-		ImageIso: "/home/arthur/Documents/Dev/misc/libvirt-go/Images/cloud.img",
-		BootIso:  "/home/arthur/Documents/Dev/misc/libvirt-go/Images/ubuntu-bliss.img",
-		MacAddr:  utils.NewMacAddress(),
-	}
-
-	inst.VirtInstall(l)
 	tabWriter.Flush()
 
+	domainTemplate := &libvirtxml.Domain{
+		Type: "kvm",
+		Name: "Test Instance Node",
+		Memory: &libvirtxml.DomainMemory{
+			Value: 1024,
+			Unit:  "MiB",
+		},
+		VCPU: &libvirtxml.DomainVCPU{
+			Value: 1,
+		},
+		OS: &libvirtxml.DomainOS{
+			Type: &libvirtxml.DomainOSType{
+				Arch: "x86_64",
+				Type: "hvm",
+			},
+		},
+		Devices: &libvirtxml.DomainDeviceList{
+			Graphics: []libvirtxml.DomainGraphic{
+				{
+					Spice: &libvirtxml.DomainGraphicSpice{
+						AutoPort: "yes",
+						Image: &libvirtxml.DomainGraphicSpiceImage{
+							Compression: "off",
+						},
+					},
+				},
+			},
+			Disks: []libvirtxml.DomainDisk{
+				{
+					Device: "disk",
+					Driver: &libvirtxml.DomainDiskDriver{
+						Name: "qemu",
+						Type: "qcow2",
+					},
+					Target: &libvirtxml.DomainDiskTarget{
+						Dev: "hda",
+						Bus: "ide",
+					},
+					Source: &libvirtxml.DomainDiskSource{
+						File: &libvirtxml.DomainDiskSourceFile{
+							File: "/home/arthur/Downloads/plod.img",
+						},
+					},
+				},
+				{
+					Device: "cdrom",
+					Target: &libvirtxml.DomainDiskTarget{
+						Dev: "hdb",
+						Bus: "ide",
+					},
+					Source: &libvirtxml.DomainDiskSource{
+						File: &libvirtxml.DomainDiskSourceFile{
+							File: "/home/arthur/Downloads/AlmaLinux-8.5-x86_64-boot.iso",
+						},
+					},
+				},
+			},
+			Interfaces: []libvirtxml.DomainInterface{
+				{
+					Model: &libvirtxml.DomainInterfaceModel{
+						Type: "e1000",
+					},
+					Source: &libvirtxml.DomainInterfaceSource{
+						Network: &libvirtxml.DomainInterfaceSourceNetwork{
+							Network: "default",
+						},
+					},
+				},
+			},
+		},
+	}
+
+	xmlDoc, err := domainTemplate.Marshal()
+	if err != nil {
+		log.Fatalf("Oops! %v", err)
+	}
+	dom, err := operation.Define(xmlDoc, l)
+	if err != nil {
+		log.Fatalf("Oopsy! %v", err)
+	}
+	fmt.Printf("Response: %s\n", dom.Name)
 	if err := l.Disconnect(); err != nil {
 		log.Fatalf("failed to disconnect: %v", err)
 	}
