@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"html/template"
-	"petricoh/operation"
+	"rs/operation"
 
 	"github.com/digitalocean/go-libvirt"
 )

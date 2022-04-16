@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	"runtime"
+	"strings"
 
 	"github.com/arthurkay/env"
 )
@@ -23,4 +24,9 @@ func LogError(err error) {
 	if err != nil {
 		log.Printf("[error] %v", err)
 	}
+}
+
+func OneLine(in []byte) string {
+	str := strings.TrimSpace(string(in))
+	return strings.Replace(str, "\n", ". ", -1)
 }
