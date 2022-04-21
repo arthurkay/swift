@@ -1,14 +1,17 @@
 package cli
 
 import (
-	"rs/config"
-	"rs/operation"
-	"rs/qemu"
-	"rs/utils"
+	"log"
+	"os"
+	"swift/config"
+	"swift/operation"
+	"swift/qemu"
+	"swift/utils"
 
 	"github.com/spf13/cobra"
 )
 
+// CreateDomain defines the cobra cmmand
 func CreateDomain() *cobra.Command {
 	var name, unit, arch, disk, cdRom, netType string
 	var memory, cpuCount, storage uint
@@ -23,32 +26,43 @@ func CreateDomain() *cobra.Command {
 			}
 			image := qemu.NewImage("/tmp/redsquare/"+name+".img", qemu.ImageFormatQCOW2, uint64(storage*qemu.GiB))
 			if err := image.SetBackingFile(disk); err != nil {
-				utils.LogError(err)
+				log.Printf("[error] %v", err)
 				return
 			}
 			if err := image.Create(); err != nil {
-				utils.LogError(err)
+				log.Printf("[error] %v", err)
 			}
-			// TOOO: create seed img with genisoimage
+			// OOing: create seed img with genisoimage
+			dir, err := os.Getwd()
+			if err != nil {
+				log.Printf("[error] %v", err)
+			}
+			seedISO := config.NewSeed(cdRom, dir+"/config_data/user-data", dir+"/config_data/meta-data")
+			if err := seedISO.Create(); err != nil {
+				log.Printf("[error] %v", err)
+			}
+			if err := seedISO.Create(); err != nil {
+				log.Printf("[error] %v", err)
+			}
 			resources := config.Resource{
 				Name:     name,
 				Memory:   memory,
 				Unit:     unit,
 				CpuCount: cpuCount,
 				Arch:     arch,
-				BootOS:   disk,
+				BootOS:   image.Path,
 				CDRom:    cdRom,
 				NetType:  netType,
 			}
 			dom := resources.DefineDomain()
 			libvirt, err := utils.InitLib()
 			if err != nil {
-				utils.LogError(err)
+				log.Printf("[error] %v", err)
 				return
 			}
 			newDomain, err := dom.Marshal()
 			if err != nil {
-				utils.LogError(err)
+				log.Printf("[error] %v", err)
 				return
 			}
 			operation.Define(newDomain, libvirt)

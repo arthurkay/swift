@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"rs/utils"
 	"strconv"
+	"swift/utils"
 	"time"
 )
 
@@ -53,10 +53,10 @@ func NewImage(path, format string, size uint64) Image {
 
 func (i Image) Create() error {
 	args := []string{"create", "-f", i.Format}
-
+	args = append(args, "-F", i.Format)
 	if len(i.backingFile) > 0 {
-		args = append(args, "-o")
-		args = append(args, fmt.Sprintf("backing_file=%s", i.backingFile))
+		//	args = append(args, "-b")
+		args = append(args, "-b", i.backingFile)
 	}
 
 	args = append(args, i.Path)

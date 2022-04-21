@@ -6,6 +6,29 @@ import (
 	"github.com/digitalocean/go-libvirt"
 )
 
+func domState(state int32) string {
+	var stateText string
+	switch state {
+	case 1:
+		stateText = "DomainRunning"
+	case 2:
+		stateText = "DomainBlocked"
+	case 3:
+		stateText = "DomainPaused"
+	case 4:
+		stateText = "DomainShutdown"
+	case 5:
+		stateText = "DomainShutoff"
+	case 6:
+		stateText = "DomainCrashed"
+	case 7:
+		stateText = "DomainPmSuspended"
+	default:
+		stateText = "DomainNostate"
+	}
+	return stateText
+}
+
 func StartUp(name string, l *libvirt.Libvirt) {
 	domain, err := l.DomainLookupByName(name)
 	if err != nil {
@@ -41,7 +64,7 @@ func DomainState(name string, l *libvirt.Libvirt) {
 	if er != nil {
 		fmt.Printf("Unable to get state:  %v\n", er)
 	} else {
-		fmt.Printf("%d, %d\n", state, reason)
+		fmt.Printf("%s, %d\n", domState(state), reason)
 	}
 }
 

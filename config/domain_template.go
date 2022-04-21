@@ -27,6 +27,10 @@ func (r *Resource) DefineDomain() *libvirtxml.Domain {
 			Value: r.CpuCount,
 		},
 		OS: &libvirtxml.DomainOS{
+			BootMenu: &libvirtxml.DomainBootMenu{
+				Enable:  "yes",
+				Timeout: "15s",
+			},
 			BootDevices: []libvirtxml.DomainBootDevice{
 				{
 					Dev: "hd",
@@ -64,7 +68,7 @@ func (r *Resource) DefineDomain() *libvirtxml.Domain {
 					},
 					Source: &libvirtxml.DomainDiskSource{
 						File: &libvirtxml.DomainDiskSourceFile{
-							File: r.BootOS,
+							File: r.BootOS, //"/home/arthur/Documents/DEV/RnD/cloudinit-rnd/cloud-img.qcow2",
 						},
 					},
 				},
@@ -76,7 +80,7 @@ func (r *Resource) DefineDomain() *libvirtxml.Domain {
 					},
 					Source: &libvirtxml.DomainDiskSource{
 						File: &libvirtxml.DomainDiskSourceFile{
-							File: r.CDRom,
+							File: r.CDRom, //"/home/arthur/Documents/DEV/RnD/cloudinit-rnd/ubuntu-seed.img",
 						},
 					},
 				},

@@ -1,4 +1,4 @@
-module rs
+module swift
 
 go 1.16
 
