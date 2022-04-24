@@ -1,53 +1,43 @@
 package config
 
 import (
-	"bytes"
 	"fmt"
-	"html/template"
-	"petricoh/operation"
-
-	"github.com/digitalocean/go-libvirt"
+	"os/exec"
+	"swift/utils"
 )
 
-type ComputeResources struct {
-	Name     string
-	Memory   int32
-	Vcpu     int32
-	ImageIso string
-	BootIso  string
-	Image    string
-	MacAddr  string
+type seed struct {
+	OutputISO string
+	UserData  string
+	MetaData  string
 }
 
-type DomainTemplate struct {
-	Template string
+// NewSeed returns a struct of the provided values for the seed
+// to be created
+func NewSeed(iso, userData, metaData string) seed {
+	return seed{
+		OutputISO: iso,
+		UserData:  userData,
+		MetaData:  metaData,
+	}
 }
 
-func (d *DomainTemplate) Create(l *libvirt.Libvirt) {
-	domain, err := operation.Define(d.Template, l)
+// Create generates the seed iso tp use for vm provisioning
+func (s seed) Create() error {
+	args := []string{"-output", s.OutputISO}
+	args = append(args, "-V")
+	args = append(args, "cidata")
+	args = append(args, "-r")
+	args = append(args, "-J")
+	args = append(args, s.UserData)
+	if s.MetaData != "" {
+		args = append(args, s.MetaData)
+	}
+
+	cmd := exec.Command("genisoimage", args...)
+	out, err := cmd.CombinedOutput()
 	if err != nil {
-		fmt.Printf("%v", err)
-		return
+		return fmt.Errorf("'genisoimage' output: %s", utils.OneLine(out))
 	}
-	operation.StartUp(domain.Name, l)
-}
-
-func (r *ComputeResources) VirtInstall(l *libvirt.Libvirt) {
-	var xml bytes.Buffer
-	t, err := template.ParseFiles("config/assets/domain.xml")
-	if err != nil {
-		fmt.Printf("Unable to get domain template file %v", err)
-		return
-	}
-
-	er := t.Execute(&xml, r)
-	if er != nil {
-		fmt.Printf("Unable to create XML template %v", er)
-		return
-	}
-
-	domainTemplate := DomainTemplate{
-		Template: xml.String(),
-	}
-	domainTemplate.Create(l)
+	return nil
 }
