@@ -29,7 +29,7 @@ func (r *Resource) DefineDomain() *libvirtxml.Domain {
 		OS: &libvirtxml.DomainOS{
 			BootMenu: &libvirtxml.DomainBootMenu{
 				Enable:  "yes",
-				Timeout: "15s",
+				Timeout: "3000",
 			},
 			BootDevices: []libvirtxml.DomainBootDevice{
 				{
@@ -63,8 +63,8 @@ func (r *Resource) DefineDomain() *libvirtxml.Domain {
 						Type: "qcow2",
 					},
 					Target: &libvirtxml.DomainDiskTarget{
-						Dev: "hda",
-						Bus: "ide",
+						Dev: "vda",
+						Bus: "virtio",
 					},
 					Source: &libvirtxml.DomainDiskSource{
 						File: &libvirtxml.DomainDiskSourceFile{
@@ -75,8 +75,8 @@ func (r *Resource) DefineDomain() *libvirtxml.Domain {
 				{
 					Device: "cdrom",
 					Target: &libvirtxml.DomainDiskTarget{
-						Dev: "hdb",
-						Bus: "ide",
+						Dev: "sda",
+						Bus: "sata",
 					},
 					Source: &libvirtxml.DomainDiskSource{
 						File: &libvirtxml.DomainDiskSourceFile{
