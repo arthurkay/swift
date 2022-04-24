@@ -13,13 +13,14 @@ import (
 func ListDomains() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "domain",
-		Short: "Everything that has to do with managing VM domain instances",
+		Short: "Show all domains on this system",
 		Run: func(cmd *cobra.Command, args []string) {
 			l, err := utils.InitLib()
 			if err != nil {
 				fmt.Printf("Oops! %v\n", err)
 				return
 			}
+			defer l.Disconnect()
 			domain.AllDomains(l)
 		},
 		Aliases: []string{"domains"},
@@ -32,18 +33,17 @@ func UndefineDomain() *cobra.Command {
 		Use:   "undefine",
 		Short: "Undefine a domain from the hypervisor",
 		Run: func(cmd *cobra.Command, args []string) {
-			var domain libvirt.Domain
 			l, err := utils.InitLib()
 			if err != nil {
 				fmt.Printf("Oops! %v\n", err)
 				return
 			}
+			defer l.Disconnect()
 			if len(args) == 0 {
 				cmd.Usage()
 				return
 			}
-			var name = args[0]
-			domain, err = l.DomainLookupByName(name)
+			domain, err := vmInstance(args[0])
 			if err != nil {
 				fmt.Printf("Oops! %v\n", err)
 				return
@@ -59,23 +59,24 @@ func StartDomain() *cobra.Command {
 		Use:   "run",
 		Short: "Start up a domain from the hypervisor",
 		Run: func(cmd *cobra.Command, args []string) {
-			var domain libvirt.Domain
 			l, err := utils.InitLib()
 			if err != nil {
 				fmt.Printf("Oops! %v\n", err)
 				return
 			}
+			defer l.Disconnect()
 			if len(args) == 0 {
 				cmd.Usage()
 				return
 			}
-			var name = args[0]
-			domain, err = l.DomainLookupByName(name)
+			dom, err := vmInstance(args[0])
 			if err != nil {
 				fmt.Printf("Oops! %v\n", err)
 				return
 			}
-			operation.StartUp(domain.Name, l)
+			operation.StartUp(dom.Name, l)
+			er := domain.DomainConsole(dom, libvirt.OptString{"console", "spice", "desktop"}, l)
+			fmt.Printf("%v", er)
 		},
 	}
 	return cmd
@@ -86,18 +87,17 @@ func ShutdownDomain() *cobra.Command {
 		Use:   "poweroff",
 		Short: "Shutdown a domain from the hypervisor",
 		Run: func(cmd *cobra.Command, args []string) {
-			var domain libvirt.Domain
 			l, err := utils.InitLib()
 			if err != nil {
 				fmt.Printf("Oops! %v\n", err)
 				return
 			}
+			defer l.Disconnect()
 			if len(args) == 0 {
 				cmd.Usage()
 				return
 			}
-			var name = args[0]
-			domain, err = l.DomainLookupByName(name)
+			domain, err := vmInstance(args[0])
 			if err != nil {
 				fmt.Printf("Oops! %v\n", err)
 				return
@@ -113,23 +113,27 @@ func DomainState() *cobra.Command {
 		Use:   "status",
 		Short: "Get domain status",
 		Run: func(cmd *cobra.Command, args []string) {
-			var domain libvirt.Domain
 			l, err := utils.InitLib()
 			if err != nil {
 				fmt.Printf("Oops! %v\n", err)
 				return
 			}
+			defer l.Disconnect()
 			if len(args) == 0 {
 				cmd.Usage()
 				return
 			}
-			var name = args[0]
-			domain, err = l.DomainLookupByName(name)
+			domain, err := vmInstance(args[0])
 			if err != nil {
 				fmt.Printf("Oops! %v\n", err)
 				return
 			}
-			operation.DomainState(domain.Name, l)
+			state, err := operation.DomainState(domain, l)
+			if err != nil {
+				fmt.Printf("%v\n", err)
+				return
+			}
+			fmt.Printf("%s\n", state)
 		},
 	}
 	return cmd

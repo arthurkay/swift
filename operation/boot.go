@@ -10,21 +10,21 @@ func domState(state int32) string {
 	var stateText string
 	switch state {
 	case 1:
-		stateText = "DomainRunning"
+		stateText = "Running"
 	case 2:
-		stateText = "DomainBlocked"
+		stateText = "Blocked"
 	case 3:
-		stateText = "DomainPaused"
+		stateText = "Paused"
 	case 4:
-		stateText = "DomainShutdown"
+		stateText = "Shutdown"
 	case 5:
-		stateText = "DomainShutoff"
+		stateText = "Shutoff"
 	case 6:
-		stateText = "DomainCrashed"
+		stateText = "Crashed"
 	case 7:
-		stateText = "DomainPmSuspended"
+		stateText = "PmSuspended"
 	default:
-		stateText = "DomainNostate"
+		stateText = "Nostate"
 	}
 	return stateText
 }
@@ -51,20 +51,16 @@ func ShutDown(uuid libvirt.UUID, l *libvirt.Libvirt) {
 	}
 }
 
-func DomainState(name string, l *libvirt.Libvirt) {
-	domain, err := l.DomainLookupByName(name)
-	if err != nil {
-		fmt.Printf("Unable to get domain instance state, %v\n", err)
-	}
+func DomainState(domain libvirt.Domain, l *libvirt.Libvirt) (string, error) {
 	params := libvirt.DomainGetStateArgs{
 		Dom:   domain,
 		Flags: uint32(libvirt.DomainNostate),
 	}
-	state, reason, er := l.DomainGetState(params.Dom, params.Flags)
+	state, _, er := l.DomainGetState(params.Dom, params.Flags)
 	if er != nil {
-		fmt.Printf("Unable to get state:  %v\n", er)
+		return "", er
 	} else {
-		fmt.Printf("%s, %d\n", domState(state), reason)
+		return domState(state), nil
 	}
 }
 
