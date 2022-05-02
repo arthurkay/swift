@@ -34,10 +34,23 @@ func (s seed) Create() error {
 		args = append(args, s.MetaData)
 	}
 
-	cmd := exec.Command("genisoimage", args...)
-	out, err := cmd.CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("'genisoimage' output: %s", utils.OneLine(out))
+	// Check is genisoimage or mkisofs is available on the system
+	var cmd *exec.Cmd
+	if utils.CommandExists("genisoimage") {
+		cmd = exec.Command("genisoimage", args...)
+		out, err := cmd.CombinedOutput()
+		if err != nil {
+			return fmt.Errorf("'genisoimage' output: %s", utils.OneLine(out))
+		}
+		return nil
 	}
-	return nil
+	if utils.CommandExists("mkisofs") {
+		cmd = exec.Command("mkisofs", args...)
+		out, err := cmd.CombinedOutput()
+		if err != nil {
+			return fmt.Errorf("'mkisofs' output: %s", utils.OneLine(out))
+		}
+		return nil
+	}
+	return fmt.Errorf("ISO creation package not found, install mkisofs or genisoimage")
 }

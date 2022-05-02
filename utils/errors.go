@@ -3,6 +3,7 @@ package utils
 import (
 	"log"
 	"os"
+	"os/exec"
 	"runtime"
 	"strings"
 
@@ -29,4 +30,11 @@ func LogError(err error) {
 func OneLine(in []byte) string {
 	str := strings.TrimSpace(string(in))
 	return strings.Replace(str, "\n", ". ", -1)
+}
+
+func CommandExists(cmd string) bool {
+	if _, err := exec.LookPath(cmd); err != nil {
+		return false
+	}
+	return true
 }

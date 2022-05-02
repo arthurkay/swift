@@ -2,11 +2,13 @@ package cli
 
 import (
 	"fmt"
+	"os"
 	"swift/domain"
 	"swift/operation"
 	"swift/utils"
 
 	"github.com/digitalocean/go-libvirt"
+	"github.com/gosimple/slug"
 	"github.com/spf13/cobra"
 )
 
@@ -48,7 +50,17 @@ func UndefineDomain() *cobra.Command {
 				fmt.Printf("Oops! %v\n", err)
 				return
 			}
-			operation.Undefine(domain, l)
+			if er := operation.Undefine(domain, l); er != nil {
+				fmt.Printf("Oops! %v\n", err)
+				return
+			}
+			configDir, erro := utils.SwiftHome()
+			if erro != nil {
+				fmt.Printf("%v", erro)
+				return
+			}
+			path := configDir + "/" + slug.Make(domain.Name)
+			os.RemoveAll(path)
 		},
 	}
 	return cmd

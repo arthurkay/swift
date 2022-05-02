@@ -68,7 +68,7 @@ func (r *Resource) DefineDomain() *libvirtxml.Domain {
 					},
 					Source: &libvirtxml.DomainDiskSource{
 						File: &libvirtxml.DomainDiskSourceFile{
-							File: r.BootOS, //"/home/arthur/Documents/DEV/RnD/cloudinit-rnd/cloud-img.qcow2",
+							File: r.BootOS,
 						},
 					},
 				},
@@ -80,7 +80,7 @@ func (r *Resource) DefineDomain() *libvirtxml.Domain {
 					},
 					Source: &libvirtxml.DomainDiskSource{
 						File: &libvirtxml.DomainDiskSourceFile{
-							File: r.CDRom, //"/home/arthur/Documents/DEV/RnD/cloudinit-rnd/ubuntu-seed.img",
+							File: r.CDRom,
 						},
 					},
 				},

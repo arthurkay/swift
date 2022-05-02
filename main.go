@@ -20,7 +20,7 @@ func main() {
 	// Get domain status
 	var status = cli.DomainState()
 
-	rootCmd := &cobra.Command{Use: "swift", Version: "0.0.0"}
+	rootCmd := &cobra.Command{Use: "swift", Version: "0.2.0"}
 	rootCmd.AddCommand(createDomain)
 	rootCmd.AddCommand(domains)
 	rootCmd.AddCommand(undefine)
