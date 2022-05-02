@@ -82,16 +82,16 @@ func CreateDomain() *cobra.Command {
 				log.Printf("[error Defined Domain XML] %v", err)
 				return
 			}
-			createdDomain, er := operation.Define(newDomain, libvirt)
+			_, er := operation.Define(newDomain, libvirt)
 			if er != nil {
 				log.Printf("[error Create Domain Instance] %v", er)
 				return
 			}
-			e := libvirt.DomainCreate(createdDomain)
+			/* 		e := libvirt.DomainCreate(createdDomain)
 			if e != nil {
 				log.Printf("[error Run Domain Instance] %v", e)
 				return
-			}
+			} */
 		},
 		Example: `
 		To create a VM, only two flags are mandatory, i.e:

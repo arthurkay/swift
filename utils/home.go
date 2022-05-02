@@ -14,7 +14,7 @@ func SwiftHome() (string, error) {
 	}
 	path := dir + "/swift"
 	if _, err := os.Stat(path); err != nil {
-		if er := os.Mkdir(path, 0755); er != nil {
+		if er := os.Mkdir(path, 0777); er != nil {
 			return "", fmt.Errorf("%v", er)
 		}
 	}
