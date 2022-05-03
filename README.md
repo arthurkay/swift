@@ -29,7 +29,7 @@ sudo apt install genisoimage
 On opensuse:
 
 ```bash
-sudo zypper install mksiofs
+sudo zypper install mkisofs
 ```
 
 The software stores its vm images and configs in the directory, /var/swift.
