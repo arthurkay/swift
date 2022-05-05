@@ -1,7 +1,7 @@
 package config
 
 import (
-	libvirtxml "libvirt.org/libvirt-go-xml"
+	libvirtxml "libvirt.org/go/libvirtxml"
 )
 
 type Resource struct {
