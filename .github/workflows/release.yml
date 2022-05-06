@@ -25,7 +25,10 @@ jobs:
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v2
         with:
-          # either 'goreleaser' (default) or 'goreleaser-pro'
+          builds:
+            - id: linux-build
+              goos:
+                - linux
           distribution: goreleaser
           version: latest
           args: release --rm-dist
