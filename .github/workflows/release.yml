@@ -26,7 +26,6 @@ jobs:
         uses: goreleaser/goreleaser-action@v2
         with:
           builds:
-            - id: linux-build
               goos:
                 - linux
           distribution: goreleaser
