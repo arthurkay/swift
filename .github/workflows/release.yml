@@ -24,6 +24,8 @@ jobs:
           sudo apt install libvirt-dev
       -
         name: Run GoReleaser
+        run:
+          sudo apt install libvirt-dev -y
         uses: goreleaser/goreleaser-action@v2
         with:
           # either 'goreleaser' (default) or 'goreleaser-pro'
