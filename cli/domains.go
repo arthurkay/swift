@@ -164,19 +164,19 @@ func GetVmXML() *cobra.Command {
 				cmd.Usage()
 				return
 			}
-			domainDetails, err := vmInstance(args[0])
-			if err != nil {
-				fmt.Printf("Oops! %v\n", err)
+			domainDetails, er := vmInstance(args[0])
+			if er != nil {
+				fmt.Printf("Oops! %v\n", er)
 				return
 			}
-			dom, err := conn.LookupDomainByName(domainDetails.Name)
-			if err != nil {
-				fmt.Printf("Oops! %v\n", err)
+			dom, e := conn.LookupDomainByName(domainDetails.Name)
+			if e != nil {
+				fmt.Printf("Oops! %v\n", e)
 				return
 			}
-			xml, err := dom.GetXMLDesc(0)
-			if err != nil {
-				fmt.Printf("Oops! %v\n", err)
+			xml, erro := dom.GetXMLDesc(0)
+			if erro != nil {
+				fmt.Printf("Oops! %v\n", erro)
 				return
 			}
 			fmt.Printf("%s", xml)
