@@ -7,15 +7,16 @@ import (
 	"swift/operation"
 	"swift/utils"
 
-	"github.com/digitalocean/go-libvirt"
 	"github.com/gosimple/slug"
 	"github.com/spf13/cobra"
+
+	"libvirt.org/go/libvirt"
 )
 
 func ListDomains() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "domain",
-		Short: "Show all domains on this system",
+		Use:   "vm",
+		Short: "Show all vms on this system",
 		Run: func(cmd *cobra.Command, args []string) {
 			l, err := utils.InitLib()
 			if err != nil {
@@ -25,15 +26,15 @@ func ListDomains() *cobra.Command {
 			defer l.Disconnect()
 			domain.AllDomains(l)
 		},
-		Aliases: []string{"domains"},
+		Aliases: []string{"vms"},
 	}
 	return cmd
 }
 
 func UndefineDomain() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "undefine",
-		Short: "Undefine a domain from the hypervisor",
+		Use:   "delete",
+		Short: "delete a vm from the hypervisor",
 		Run: func(cmd *cobra.Command, args []string) {
 			l, err := utils.InitLib()
 			if err != nil {
@@ -68,8 +69,8 @@ func UndefineDomain() *cobra.Command {
 
 func StartDomain() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "run",
-		Short: "Start up a domain from the hypervisor",
+		Use:   "start",
+		Short: "Start up a vm from the hypervisor",
 		Run: func(cmd *cobra.Command, args []string) {
 			l, err := utils.InitLib()
 			if err != nil {
@@ -87,8 +88,6 @@ func StartDomain() *cobra.Command {
 				return
 			}
 			operation.StartUp(dom.Name, l)
-			er := domain.DomainConsole(dom, libvirt.OptString{"console", "spice", "desktop"}, l)
-			fmt.Printf("%v", er)
 		},
 	}
 	return cmd
@@ -97,7 +96,7 @@ func StartDomain() *cobra.Command {
 func ShutdownDomain() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "poweroff",
-		Short: "Shutdown a domain from the hypervisor",
+		Short: "Shutdown a vm from the hypervisor",
 		Run: func(cmd *cobra.Command, args []string) {
 			l, err := utils.InitLib()
 			if err != nil {
@@ -123,7 +122,7 @@ func ShutdownDomain() *cobra.Command {
 func DomainState() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "status",
-		Short: "Get domain status",
+		Short: "Get vm status",
 		Run: func(cmd *cobra.Command, args []string) {
 			l, err := utils.InitLib()
 			if err != nil {
@@ -146,6 +145,41 @@ func DomainState() *cobra.Command {
 				return
 			}
 			fmt.Printf("%s\n", state)
+		},
+	}
+	return cmd
+}
+
+func GetVmXML() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "xml",
+		Short: "Display vm instance xml details",
+		Run: func(cmd *cobra.Command, args []string) {
+			conn, err := libvirt.NewConnect("qemu:///system")
+			if err != nil {
+				fmt.Printf("Oops! %v\n", err)
+				return
+			}
+			if len(args) == 0 {
+				cmd.Usage()
+				return
+			}
+			domainDetails, err := vmInstance(args[0])
+			if err != nil {
+				fmt.Printf("Oops! %v\n", err)
+				return
+			}
+			dom, err := conn.LookupDomainByName(domainDetails.Name)
+			if err != nil {
+				fmt.Printf("Oops! %v\n", err)
+				return
+			}
+			xml, err := dom.GetXMLDesc(0)
+			if err != nil {
+				fmt.Printf("Oops! %v\n", err)
+				return
+			}
+			fmt.Printf("%s", xml)
 		},
 	}
 	return cmd

@@ -19,6 +19,8 @@ func main() {
 	var shutdown = cli.ShutdownDomain()
 	// Get domain status
 	var status = cli.DomainState()
+	// Get the VM XML dump
+	var vmXML = cli.GetVmXML()
 
 	rootCmd := &cobra.Command{Use: "swift", Version: "0.2.0"}
 	rootCmd.AddCommand(createDomain)
@@ -27,5 +29,6 @@ func main() {
 	rootCmd.AddCommand(startVM)
 	rootCmd.AddCommand(shutdown)
 	rootCmd.AddCommand(status)
+	rootCmd.AddCommand(vmXML)
 	rootCmd.Execute()
 }

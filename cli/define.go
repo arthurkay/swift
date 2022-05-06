@@ -18,7 +18,7 @@ func CreateDomain() *cobra.Command {
 	var memory, cpuCount, storage uint
 	cmd := &cobra.Command{
 		Use:   "define",
-		Short: "Define the vm instance template",
+		Short: "Define vm instance",
 		Long:  "Define, defines the vm instance compute resources, distribution to configure this instance with",
 		Run: func(cmd *cobra.Command, args []string) {
 			if name == "" || disk == "" {
