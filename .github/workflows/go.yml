@@ -17,8 +17,10 @@ jobs:
       uses: actions/setup-go@v3
       with:
         go-version: 1.18
+
     - name: Install Libvirt Libs
       run: sudo apt install qemu-kvm libvirt-daemon-system libvirt-dev -y
+      
     - name: Build
       run: go build -v ./...
 

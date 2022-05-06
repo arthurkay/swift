@@ -2,30 +2,27 @@
 on:
   push:
       # Sequence of patterns matched against refs/tags
-      tags:
-        - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+      branches: [ test ]
+      #tags:
+      #  - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
 name: Build Release
 jobs:
   release-unix:
     name: release unix
     runs-on: ubuntu-latest
     steps:
-      -
-        name: Checkout
+      - name: Checkout
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      -
-        name: Set up Go
+
+      - name: Set up Go
         uses: actions/setup-go@v2
-      -
-        name: Add Libvirt-dev lib
-        run:
-          sudo apt install libvirt-dev
-      -
-        name: Run GoReleaser
-        run:
-          sudo apt install libvirt-dev -y
+
+      - name: Add Libvirt-dev lib
+        run: sudo apt install qemu-kvm libvirt-daemon-system libvirt-dev -y
+      
+      - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v2
         with:
           # either 'goreleaser' (default) or 'goreleaser-pro'
