@@ -21,7 +21,7 @@ jobs:
       -
         name: Add Libvirt-dev lib
         run:
-          apt install libvirt-dev
+          sudo apt install libvirt-dev
       -
         name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v2
