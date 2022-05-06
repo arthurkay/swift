@@ -4,5 +4,5 @@ petricoh
 Images
 config_data
 swift
-.goreleaser.yaml
 dist
+dist/

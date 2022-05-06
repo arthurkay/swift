@@ -2,7 +2,7 @@ name: Build Test
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, test ]
   pull_request:
     branches: [ master ]
 
@@ -18,6 +18,9 @@ jobs:
       with:
         go-version: 1.18
 
+    - name: Install Libvirt Libs
+      run: sudo apt install qemu-kvm libvirt-daemon-system libvirt-dev -y
+      
     - name: Build
       run: go build -v ./...
 
