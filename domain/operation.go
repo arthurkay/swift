@@ -43,6 +43,19 @@ func DefinedDomains(l *libvirt.Libvirt) ([]libvirt.Domain, error) {
 	return domains, err
 }
 
+func VmNames(l *libvirt.Libvirt) ([]string, error) {
+	var names []string
+	params := &libvirt.ConnectListAllDomainsArgs{
+		NeedResults: int32(libvirt.ConnectListDomainsPersistent),
+		Flags:       libvirt.ConnectListAllDomainsFlags(libvirt.ConnectListDomainsPersistent),
+	}
+	domains, _, err := l.ConnectListAllDomains(params.NeedResults, params.Flags)
+	for _, domain := range domains {
+		names = append(names, domain.Name)
+	}
+	return names, err
+}
+
 func DomainConsole(domain libvirt.Domain, devName libvirt.OptString, l *libvirt.Libvirt) error {
 	params := &libvirt.DomainOpenConsoleArgs{
 		Dom:     domain,

@@ -1,10 +1,6 @@
-# This is an example .goreleaser.yml file with some sensible defaults.
-# Make sure to check the documentation at https://goreleaser.com
 before:
   hooks:
-    # You may remove this if you don't use go modules.
     - go mod tidy
-    # you may remove this if you don't need go generate
     - go generate ./...
 builds:
   - env:
@@ -23,8 +19,46 @@ checksum:
 snapshot:
   name_template: "{{ incpatch .Version }}-next"
 changelog:
+  groups:
+    - title: Features
+      regexp: "^.*feat[(\\w)]*:+.*$"
+      order: 0
+    - title: 'Bug fixes'
+      regexp: "^.*fix[(\\w)]*:+.*$"
+      order: 1
+    - title: Others
+      order: 999
   sort: asc
   filters:
     exclude:
       - '^docs:'
       - '^test:'
+      - '^refactor:'
+      - '^wip:'
+release:
+  mode: append
+
+  # Header template for the release body.
+  header: |
+    # {{ .ProjectName }} {{ .Tag }}
+
+    ## [{{ .Version }}] - {{ .Date }}
+
+    ### Added
+    
+    - Added interactivity to CLI operations
+
+    - Functionality to prompt user to confirm vm deletion.
+
+    - Functionality to list selection of vm list if user doesn't specify the vm to perform operation on.
+    
+    ### Changed 
+    
+    - Changed in response messages, instead of domain, vm is prefered. This change is still on-going.
+
+
+  # Footer template for the release body.
+  footer: |
+    ### Swift Cloud Engine {{ .Version }} release by {{ .Env.USER }}
+
+    ### {{ .Date }}

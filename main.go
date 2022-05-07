@@ -22,7 +22,7 @@ func main() {
 	// Get the VM XML dump
 	var vmXML = cli.GetVmXML()
 
-	rootCmd := &cobra.Command{Use: "swift", Version: "0.2.6"}
+	rootCmd := &cobra.Command{Use: "swift", Version: "0.3.0"}
 	rootCmd.AddCommand(createDomain)
 	rootCmd.AddCommand(domains)
 	rootCmd.AddCommand(undefine)

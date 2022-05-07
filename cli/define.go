@@ -55,7 +55,6 @@ func CreateDomain() *cobra.Command {
 			if err := image.Create(); err != nil {
 				log.Printf("[error] %v", err)
 			}
-			// OOing: create seed img with genisoimage
 			seedISO := config.NewSeed(cdRom, path+"/user-data", path+"/meta-data")
 			if err := seedISO.Create(); err != nil {
 				log.Printf("[error ISO Create] %v", err)
@@ -87,11 +86,6 @@ func CreateDomain() *cobra.Command {
 				log.Printf("[error Create Domain Instance] %v", er)
 				return
 			}
-			/* 		e := libvirt.DomainCreate(createdDomain)
-			if e != nil {
-				log.Printf("[error Run Domain Instance] %v", e)
-				return
-			} */
 		},
 		Example: `
 		To create a VM, only two flags are mandatory, i.e:
@@ -106,7 +100,6 @@ func CreateDomain() *cobra.Command {
 	cmd.Flags().StringVarP(&unit, "unit", "u", "MiB", "Memory units, supported values: KiB MiB GiB")
 	cmd.Flags().StringVarP(&arch, "arch", "a", "x86_64", "The vm instance system architecture")
 	cmd.Flags().StringVarP(&disk, "disk", "d", "", "Location of the disk the OS to boot in")
-	//cmd.Flags().StringVarP(&cdRom, "rom", "r", "", "Location of the image to get OS during installation")
 	cmd.Flags().UintVarP(&cpuCount, "cpu", "c", 1, "Number of CPU's to allocate to vm instance")
 	cmd.Flags().StringVarP(&netType, "interface", "i", "e1000", "Network interface model")
 	cmd.Flags().UintVarP(&storage, "storage", "s", 10, "Disk size in Gigabytes")

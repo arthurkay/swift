@@ -43,25 +43,52 @@ func UndefineDomain() *cobra.Command {
 			}
 			defer l.Disconnect()
 			if len(args) == 0 {
-				cmd.Usage()
+				vmName, err := utils.SelectFromVMs()
+				if err != nil {
+					fmt.Printf("%v\n", err)
+				}
+				domain, er := vmInstance(vmName)
+				if er != nil {
+					fmt.Printf("%v\n", err)
+					return
+				}
+				if result, _ := utils.ConfirmOperation(); result == "y" {
+					if er := operation.Undefine(domain, l); er != nil {
+						fmt.Printf("Oops! %v\n", err)
+						return
+					}
+					configDir, erro := utils.SwiftHome()
+					if erro != nil {
+						fmt.Printf("%v", erro)
+						return
+					}
+					path := configDir + "/" + slug.Make(domain.Name)
+					os.RemoveAll(path)
+					return
+				}
+				fmt.Printf("Delete canceled\n")
 				return
 			}
 			domain, err := vmInstance(args[0])
 			if err != nil {
-				fmt.Printf("Oops! %v\n", err)
+				fmt.Printf("%v\n", err)
 				return
 			}
-			if er := operation.Undefine(domain, l); er != nil {
-				fmt.Printf("Oops! %v\n", err)
+			if result, _ := utils.ConfirmOperation(); result == "y" {
+				if er := operation.Undefine(domain, l); er != nil {
+					fmt.Printf("%v\n", err)
+					return
+				}
+				configDir, erro := utils.SwiftHome()
+				if erro != nil {
+					fmt.Printf("%v", erro)
+					return
+				}
+				path := configDir + "/" + slug.Make(domain.Name)
+				os.RemoveAll(path)
 				return
 			}
-			configDir, erro := utils.SwiftHome()
-			if erro != nil {
-				fmt.Printf("%v", erro)
-				return
-			}
-			path := configDir + "/" + slug.Make(domain.Name)
-			os.RemoveAll(path)
+			fmt.Printf("Delete canceled\n")
 		},
 	}
 	return cmd
@@ -79,7 +106,16 @@ func StartDomain() *cobra.Command {
 			}
 			defer l.Disconnect()
 			if len(args) == 0 {
-				cmd.Usage()
+				vmName, err := utils.SelectFromVMs()
+				if err != nil {
+					fmt.Printf("Oops! %v\n", err)
+				}
+				domain, er := vmInstance(vmName)
+				if er != nil {
+					fmt.Printf("Oops! %v\n", err)
+					return
+				}
+				operation.StartUp(domain.Name, l)
 				return
 			}
 			dom, err := vmInstance(args[0])
@@ -105,7 +141,16 @@ func ShutdownDomain() *cobra.Command {
 			}
 			defer l.Disconnect()
 			if len(args) == 0 {
-				cmd.Usage()
+				vmName, err := utils.SelectFromVMs()
+				if err != nil {
+					fmt.Printf("Oops! %v\n", err)
+				}
+				domain, er := vmInstance(vmName)
+				if er != nil {
+					fmt.Printf("Oops! %v\n", err)
+					return
+				}
+				operation.ShutDown(domain.UUID, l)
 				return
 			}
 			domain, err := vmInstance(args[0])
@@ -131,7 +176,21 @@ func DomainState() *cobra.Command {
 			}
 			defer l.Disconnect()
 			if len(args) == 0 {
-				cmd.Usage()
+				vmName, err := utils.SelectFromVMs()
+				if err != nil {
+					fmt.Printf("Oops! %v\n", err)
+				}
+				domain, er := vmInstance(vmName)
+				if er != nil {
+					fmt.Printf("Oops! %v\n", err)
+					return
+				}
+				state, err := operation.DomainState(domain, l)
+				if err != nil {
+					fmt.Printf("%v\n", err)
+					return
+				}
+				fmt.Printf("%s\n", state)
 				return
 			}
 			domain, err := vmInstance(args[0])
@@ -161,7 +220,26 @@ func GetVmXML() *cobra.Command {
 				return
 			}
 			if len(args) == 0 {
-				cmd.Usage()
+				vmName, err := utils.SelectFromVMs()
+				if err != nil {
+					fmt.Printf("Oops! %v\n", err)
+				}
+				domain, er := vmInstance(vmName)
+				if er != nil {
+					fmt.Printf("Oops! %v\n", err)
+					return
+				}
+				dom, e := conn.LookupDomainByName(domain.Name)
+				if e != nil {
+					fmt.Printf("Oops! %v\n", e)
+					return
+				}
+				xml, erro := dom.GetXMLDesc(0)
+				if erro != nil {
+					fmt.Printf("Oops! %v\n", erro)
+					return
+				}
+				fmt.Printf("%s", xml)
 				return
 			}
 			domainDetails, er := vmInstance(args[0])

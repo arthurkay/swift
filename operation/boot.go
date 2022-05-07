@@ -32,22 +32,22 @@ func domState(state int32) string {
 func StartUp(name string, l *libvirt.Libvirt) {
 	domain, err := l.DomainLookupByName(name)
 	if err != nil {
-		fmt.Printf("Unable to get domain because: %v\n", err)
+		fmt.Printf("Unable to get vm: %v\n", err)
 	}
 	er := l.DomainCreate(domain)
 	if er != nil {
-		fmt.Printf("Unable to boot up domain because: %v\n", er)
+		fmt.Printf("Unable to boot up vm: %v\n", er)
 	}
 }
 
 func ShutDown(uuid libvirt.UUID, l *libvirt.Libvirt) {
 	domain, err := l.DomainLookupByUUID(uuid)
 	if err != nil {
-		fmt.Printf("Unable to find selected domain: %v\n", err)
+		fmt.Printf("Unable to find selected vm: %v\n", err)
 	}
 	er := l.DomainDestroy(domain)
 	if er != nil {
-		fmt.Printf("Unable to shutdown VM because %v\n", er)
+		fmt.Printf("VM not running: %v\n", er)
 	}
 }
 
@@ -67,7 +67,7 @@ func DomainState(domain libvirt.Domain, l *libvirt.Libvirt) (string, error) {
 func Reboot(uuid libvirt.UUID, l *libvirt.Libvirt) {
 	domain, err := l.DomainLookupByUUID(uuid)
 	if err != nil {
-		fmt.Printf("Unable to get domain %v", err)
+		fmt.Printf("Unable to get vm %v", err)
 	}
 	params := libvirt.DomainRebootArgs{
 		Dom:   domain,
