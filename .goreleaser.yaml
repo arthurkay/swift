@@ -3,7 +3,9 @@ before:
     - go mod tidy
     - go generate ./...
 builds:
-  - env:
+  - main: ./cmd/swift
+    binary: swift
+    env:
       - CGO_ENABLED=1
     goos:
       - linux

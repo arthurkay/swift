@@ -1,10 +1,11 @@
-package config
+package hv
 
 import (
-	libvirtxml "libvirt.org/go/libvirtxml"
+	"libvirt.org/go/libvirtxml"
 )
 
-type Resource struct {
+// DomainResources holds the compute resources for a VM definition.
+type DomainResources struct {
 	Name     string
 	Memory   uint
 	Unit     string
@@ -15,44 +16,51 @@ type Resource struct {
 	NetType  string
 }
 
-func (r *Resource) DefineDomain() *libvirtxml.Domain {
+// DefineDomain constructs a libvirtxml.Domain from the given resources.
+func (r DomainResources) DefineDomain() *libvirtxml.Domain {
+	memUnit := r.Unit
+	if memUnit == "" {
+		memUnit = "MiB"
+	}
+	arch := r.Arch
+	if arch == "" {
+		arch = "x86_64"
+	}
+	netModel := r.NetType
+	if netModel == "" {
+		netModel = "e1000"
+	}
+
 	return &libvirtxml.Domain{
 		Type: "kvm",
 		Name: r.Name,
 		Memory: &libvirtxml.DomainMemory{
-			Value: r.Memory,
-			Unit:  r.Unit,
+			Unit: memUnit,
+			Value: uint(r.Memory),
 		},
 		VCPU: &libvirtxml.DomainVCPU{
-			Value: r.CpuCount,
+			Value: uint(r.CpuCount),
 		},
 		OS: &libvirtxml.DomainOS{
-			BootMenu: &libvirtxml.DomainBootMenu{
-				Enable:  "yes",
-				Timeout: "3000",
+			Type: &libvirtxml.DomainOSType{
+				Arch:    arch,
+				Machine: "pc",
+				Type:    "hvm",
 			},
 			BootDevices: []libvirtxml.DomainBootDevice{
-				{
-					Dev: "hd",
-				},
-				{
-					Dev: "cdrom",
-				},
-			},
-			Type: &libvirtxml.DomainOSType{
-				Arch: r.Arch,
-				Type: "hvm",
+				{Dev: "hd"},
+				{Dev: "cdrom"},
 			},
 		},
 		Devices: &libvirtxml.DomainDeviceList{
 			Graphics: []libvirtxml.DomainGraphic{
 				{
-					Spice: &libvirtxml.DomainGraphicSpice{
-						AutoPort: "yes",
-						Image: &libvirtxml.DomainGraphicSpiceImage{
-							Compression: "off",
-						},
+				Spice: &libvirtxml.DomainGraphicSpice{
+					AutoPort: "on",
+					Image: &libvirtxml.DomainGraphicSpiceImage{
+						Compression: "on",
 					},
+				},
 				},
 			},
 			Disks: []libvirtxml.DomainDisk{
@@ -62,33 +70,37 @@ func (r *Resource) DefineDomain() *libvirtxml.Domain {
 						Name: "qemu",
 						Type: "qcow2",
 					},
-					Target: &libvirtxml.DomainDiskTarget{
-						Dev: "vda",
-						Bus: "virtio",
-					},
 					Source: &libvirtxml.DomainDiskSource{
 						File: &libvirtxml.DomainDiskSourceFile{
 							File: r.BootOS,
 						},
 					},
+					Target: &libvirtxml.DomainDiskTarget{
+						Dev: "vda",
+						Bus: "virtio",
+					},
 				},
 				{
 					Device: "cdrom",
-					Target: &libvirtxml.DomainDiskTarget{
-						Dev: "sda",
-						Bus: "sata",
+					Driver: &libvirtxml.DomainDiskDriver{
+						Name: "qemu",
+						Type: "raw",
 					},
 					Source: &libvirtxml.DomainDiskSource{
 						File: &libvirtxml.DomainDiskSourceFile{
 							File: r.CDRom,
 						},
 					},
+					Target: &libvirtxml.DomainDiskTarget{
+						Dev: "sda",
+						Bus: "sata",
+					},
 				},
 			},
 			Interfaces: []libvirtxml.DomainInterface{
 				{
 					Model: &libvirtxml.DomainInterfaceModel{
-						Type: r.NetType,
+						Type: netModel,
 					},
 					Source: &libvirtxml.DomainInterfaceSource{
 						Network: &libvirtxml.DomainInterfaceSourceNetwork{

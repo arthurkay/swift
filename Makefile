@@ -12,6 +12,22 @@ sysroot-pack:
 sysroot-unpack:
 	@pv $(SYSROOT_ARCHIVE) | pbzip2 -cd | tar -xf -
 
+.PHONY: build
+build:
+	go build -o swift ./cmd/swift
+
+.PHONY: install
+install:
+	go install ./cmd/swift
+
+.PHONY: lint
+lint:
+	go vet ./...
+
+.PHONY: test
+test:
+	go test ./...
+
 .PHONY: release-dry-run
 release-dry-run:
 	@docker run \
