@@ -9,7 +9,7 @@ users:
     shell: /bin/bash
     lock_passwd: false
     ssh-authorized-keys:
-      - <sshPUBKEY>
+      - {{ .SSHPublicKey }}
 # only cert auth via ssh (console access can still login)
 ssh_pwauth: false
 disable_root: false

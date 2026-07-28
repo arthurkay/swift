@@ -25,7 +25,7 @@ const (
 // Home returns the swift home directory, creating it if it does not exist.
 func Home() (string, error) {
 	if _, err := os.Stat(SwiftHomeDir); err != nil {
-		if err := os.Mkdir(SwiftHomeDir, DirPermission); err != nil {
+		if err := os.MkdirAll(SwiftHomeDir, DirPermission); err != nil {
 			return "", fmt.Errorf("create swift home: %w", err)
 		}
 		if err := os.Chown(SwiftHomeDir, os.Getuid(), os.Getgid()); err != nil {

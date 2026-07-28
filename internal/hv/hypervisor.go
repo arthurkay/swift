@@ -17,14 +17,16 @@ type DomainInfo struct {
 // Hypervisor abstracts libvirt domain operations for testability.
 type Hypervisor interface {
 	ListDomains() ([]DomainInfo, error)
+	DomainNames() ([]string, error)
 	LookupDomain(name string) (*DomainInfo, error)
 	LookupDomainByUUID(uuid string) (*DomainInfo, error)
 	LookupDomainByID(id int) (*DomainInfo, error)
 	DefineDomain(xml string) error
 	UndefineDomain(name string) error
 	StartDomain(name string) error
-	StopDomain(uuid string) error
-	RebootDomain(uuid string) error
+	ShutdownDomain(name string) error
+	StopDomain(name string) error
+	RebootDomain(name string) error
 	DomainState(name string) (string, error)
 	DomainXML(name string) (string, error)
 }

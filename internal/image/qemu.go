@@ -10,13 +10,13 @@ import (
 
 const (
 	// Image format constants
-	FormatRAW  = "raw"
-	FormatQCOW = "qcow"
+	FormatRAW   = "raw"
+	FormatQCOW  = "qcow"
 	FormatQCOW2 = "qcow2"
-	FormatVMDK = "vmdk"
-	FormatVDI  = "vdi"
-	FormatVHDX = "vhdx"
-	FormatVPC  = "vpc"
+	FormatVMDK  = "vmdk"
+	FormatVDI   = "vdi"
+	FormatVHDX  = "vhdx"
+	FormatVPC   = "vpc"
 
 	// GiB is one gibibyte in bytes (2^30).
 	GiB = 1073741824

@@ -2,8 +2,13 @@ package hv
 
 import (
 	"fmt"
+	"regexp"
+
 	"libvirt.org/go/libvirt"
 )
+
+// hex32 matches a 32-character hexadecimal string (libvirt UUID without dashes).
+var hex32 = regexp.MustCompile(`^[0-9a-fA-F]{32}$`)
 
 // ListDomains returns all persistent domains.
 func (h *LibvirtHypervisor) ListDomains() ([]DomainInfo, error) {
@@ -29,7 +34,7 @@ func (h *LibvirtHypervisor) LookupDomain(arg string) (*DomainInfo, error) {
 		return h.LookupDomainByID(id)
 	}
 	// Try UUID (32 hex chars without dashes)
-	if len(arg) == 32 {
+	if hex32.MatchString(arg) {
 		info, err := h.LookupDomainByUUID(arg)
 		if err == nil {
 			return info, nil

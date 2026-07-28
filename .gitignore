@@ -3,6 +3,6 @@ config/assets/text.sh
 petricoh
 Images
 config_data
-swift
+./swift
 dist
 dist/

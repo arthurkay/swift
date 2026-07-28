@@ -19,26 +19,38 @@ func (h *LibvirtHypervisor) StartDomain(name string) error {
 	return nil
 }
 
-// StopDomain force-stops a domain by UUID.
-func (h *LibvirtHypervisor) StopDomain(uuid string) error {
-	dom, err := h.conn.LookupDomainByUUIDString(uuid)
+// ShutdownDomain sends an ACPI shutdown signal to a domain by name.
+func (h *LibvirtHypervisor) ShutdownDomain(name string) error {
+	dom, err := h.conn.LookupDomainByName(name)
 	if err != nil {
-		return fmt.Errorf("lookup domain UUID %q for stop: %w", uuid, err)
+		return fmt.Errorf("lookup domain %q for shutdown: %w", name, err)
 	}
-	if err := dom.Destroy(); err != nil {
-		return fmt.Errorf("stop domain UUID %q: %w", uuid, err)
+	if err := dom.Shutdown(); err != nil {
+		return fmt.Errorf("shutdown domain %q: %w", name, err)
 	}
 	return nil
 }
 
-// RebootDomain reboots a domain by UUID.
-func (h *LibvirtHypervisor) RebootDomain(uuid string) error {
-	dom, err := h.conn.LookupDomainByUUIDString(uuid)
+// StopDomain force-stops a domain by name.
+func (h *LibvirtHypervisor) StopDomain(name string) error {
+	dom, err := h.conn.LookupDomainByName(name)
 	if err != nil {
-		return fmt.Errorf("lookup domain UUID %q for reboot: %w", uuid, err)
+		return fmt.Errorf("lookup domain %q for stop: %w", name, err)
+	}
+	if err := dom.Destroy(); err != nil {
+		return fmt.Errorf("stop domain %q: %w", name, err)
+	}
+	return nil
+}
+
+// RebootDomain reboots a domain by name.
+func (h *LibvirtHypervisor) RebootDomain(name string) error {
+	dom, err := h.conn.LookupDomainByName(name)
+	if err != nil {
+		return fmt.Errorf("lookup domain %q for reboot: %w", name, err)
 	}
 	if err := dom.Reboot(libvirt.DOMAIN_REBOOT_DEFAULT); err != nil {
-		return fmt.Errorf("reboot domain UUID %q: %w", uuid, err)
+		return fmt.Errorf("reboot domain %q: %w", name, err)
 	}
 	return nil
 }

@@ -13,11 +13,12 @@ type DomainResources struct {
 	Arch     string
 	BootOS   string
 	CDRom    string
+	MAC      string
 	NetType  string
 }
 
-// DefineDomain constructs a libvirtxml.Domain from the given resources.
-func (r DomainResources) DefineDomain() *libvirtxml.Domain {
+// BuildDomainXML constructs a libvirtxml.Domain from the given resources.
+func (r DomainResources) BuildDomainXML() *libvirtxml.Domain {
 	memUnit := r.Unit
 	if memUnit == "" {
 		memUnit = "MiB"
@@ -31,11 +32,27 @@ func (r DomainResources) DefineDomain() *libvirtxml.Domain {
 		netModel = "e1000"
 	}
 
+	iface := libvirtxml.DomainInterface{
+		Model: &libvirtxml.DomainInterfaceModel{
+			Type: netModel,
+		},
+		Source: &libvirtxml.DomainInterfaceSource{
+			Network: &libvirtxml.DomainInterfaceSourceNetwork{
+				Network: "default",
+			},
+		},
+	}
+	if r.MAC != "" {
+		iface.MAC = &libvirtxml.DomainInterfaceMAC{
+			Address: r.MAC,
+		}
+	}
+
 	return &libvirtxml.Domain{
 		Type: "kvm",
 		Name: r.Name,
 		Memory: &libvirtxml.DomainMemory{
-			Unit: memUnit,
+			Unit:  memUnit,
 			Value: uint(r.Memory),
 		},
 		VCPU: &libvirtxml.DomainVCPU{
@@ -55,12 +72,12 @@ func (r DomainResources) DefineDomain() *libvirtxml.Domain {
 		Devices: &libvirtxml.DomainDeviceList{
 			Graphics: []libvirtxml.DomainGraphic{
 				{
-				Spice: &libvirtxml.DomainGraphicSpice{
-					AutoPort: "on",
-					Image: &libvirtxml.DomainGraphicSpiceImage{
-						Compression: "on",
+					Spice: &libvirtxml.DomainGraphicSpice{
+						AutoPort: "on",
+						Image: &libvirtxml.DomainGraphicSpiceImage{
+							Compression: "on",
+						},
 					},
-				},
 				},
 			},
 			Disks: []libvirtxml.DomainDisk{
@@ -97,18 +114,7 @@ func (r DomainResources) DefineDomain() *libvirtxml.Domain {
 					},
 				},
 			},
-			Interfaces: []libvirtxml.DomainInterface{
-				{
-					Model: &libvirtxml.DomainInterfaceModel{
-						Type: netModel,
-					},
-					Source: &libvirtxml.DomainInterfaceSource{
-						Network: &libvirtxml.DomainInterfaceSourceNetwork{
-							Network: "default",
-						},
-					},
-				},
-			},
+			Interfaces: []libvirtxml.DomainInterface{iface},
 		},
 	}
 }
