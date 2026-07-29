@@ -4,5 +4,7 @@ petricoh
 Images
 config_data
 ./swift
+.swift.exe
+./swift.dmg
 dist
 dist/

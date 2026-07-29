@@ -1,11 +1,12 @@
 module swift
 
-go 1.21
+go 1.18
 
 require (
 	github.com/gosimple/slug v1.12.0
 	github.com/manifoldco/promptui v0.9.0
 	github.com/spf13/cobra v1.4.0
+	gopkg.in/yaml.v3 v3.0.1
 	libvirt.org/go/libvirt v1.8003.0
 	libvirt.org/go/libvirtxml v1.8003.0
 )

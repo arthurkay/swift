@@ -74,10 +74,16 @@ func (h *LibvirtHypervisor) LookupDomainByID(id int) (*DomainInfo, error) {
 // DefineDomain registers a new domain from its XML definition.
 func (h *LibvirtHypervisor) DefineDomain(xml string) error {
 	_, err := h.conn.DomainDefineXML(xml)
+	return err
+}
+
+// SetDomainAutostart enables or disables autostart for a domain.
+func (h *LibvirtHypervisor) SetDomainAutostart(name string, autostart bool) error {
+	dom, err := h.conn.LookupDomainByName(name)
 	if err != nil {
-		return fmt.Errorf("define domain: %w", err)
+		return fmt.Errorf("lookup domain %q for autostart: %w", name, err)
 	}
-	return nil
+	return dom.SetAutostart(autostart)
 }
 
 // UndefineDomain removes a domain by name.

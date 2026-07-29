@@ -14,8 +14,9 @@ type DomainInfo struct {
 	ID    int
 }
 
-// Hypervisor abstracts libvirt domain operations for testability.
+// Hypervisor abstracts libvirt domain and network operations for testability.
 type Hypervisor interface {
+	// Domain operations
 	ListDomains() ([]DomainInfo, error)
 	DomainNames() ([]string, error)
 	LookupDomain(name string) (*DomainInfo, error)
@@ -23,12 +24,26 @@ type Hypervisor interface {
 	LookupDomainByID(id int) (*DomainInfo, error)
 	DefineDomain(xml string) error
 	UndefineDomain(name string) error
+	SetDomainAutostart(name string, autostart bool) error
 	StartDomain(name string) error
 	ShutdownDomain(name string) error
 	StopDomain(name string) error
 	RebootDomain(name string) error
 	DomainState(name string) (string, error)
 	DomainXML(name string) (string, error)
+
+	// Network operations
+	ListNetworks() ([]NetworkInfo, error)
+	NetworkNames() ([]string, error)
+	LookupNetwork(name string) (*NetworkInfo, error)
+	DefineNetwork(xml string) error
+	UndefineNetwork(name string) error
+	SetNetworkAutostart(name string, autostart bool) error
+	StartNetwork(name string) error
+	StopNetwork(name string) error
+	NetworkState(name string) (string, error)
+	NetworkXML(name string) (string, error)
+	NetworkBridge(name string) (string, error)
 }
 
 // LibvirtHypervisor is the production implementation using libvirt.

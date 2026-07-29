@@ -2,6 +2,7 @@ package cloudinit
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
 	"swift/pkg/errors"
 )
@@ -24,6 +25,7 @@ func NewSeed(iso, userData, metaData string) Seed {
 
 // Create generates the cloud-init seed ISO using genisoimage or mkisofs.
 func (s Seed) Create() error {
+	os.Remove(s.OutputISO)
 	args := []string{
 		"-output", s.OutputISO,
 		"-V", "cidata",
