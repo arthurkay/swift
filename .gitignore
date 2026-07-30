@@ -8,3 +8,4 @@ config_data
 ./swift.dmg
 dist
 dist/
+swift

@@ -1,0 +1,200 @@
+syntax = "proto3";
+
+package swift.agent.v1;
+
+option go_package = "swift/internal/proto;agentpb";
+
+// SwiftAgent is the service exposed by each swift-agent daemon.
+service SwiftAgent {
+  // VM Lifecycle
+  rpc DefineVM(DefineVMRequest) returns (DefineVMResponse);
+  rpc DeleteVM(DeleteVMRequest) returns (DeleteVMResponse);
+  rpc StartVM(StartVMRequest) returns (StartVMResponse);
+  rpc StopVM(StopVMRequest) returns (StopVMResponse);
+  rpc RebootVM(RebootVMRequest) returns (RebootVMResponse);
+
+  // VM Queries
+  rpc ListVMs(ListVMsRequest) returns (ListVMsResponse);
+  rpc GetVM(GetVMRequest) returns (GetVMResponse);
+  rpc GetVMXML(GetVMXMLRequest) returns (GetVMXMLResponse);
+
+  // Placement — agent evaluates resources and returns placement decision
+  rpc PlaceVM(PlaceVMRequest) returns (PlaceVMResponse);
+
+  // Health & Resources
+  rpc GetHostInfo(GetHostInfoRequest) returns (HostInfo);
+  rpc WatchHealth(stream HealthPing) returns (stream HealthEvent);
+
+  // Image Cache — agent pulls images from URLs
+  rpc PullImage(PullImageRequest) returns (stream PullImageProgress);
+  rpc CacheStatus(CacheStatusRequest) returns (CacheStatusResponse);
+}
+
+// === VM Lifecycle ===
+
+message DefineVMRequest {
+  string name = 1;
+  uint32 memory = 2;
+  string memory_unit = 3;
+  uint32 cpu_count = 4;
+  string arch = 5;
+  string backing_image_url = 6;
+  string backing_image_sha256 = 7;
+  uint64 disk_size = 8;
+  string cloud_init_user_data = 9;
+  string network_model = 10;
+}
+
+message DefineVMResponse {
+  bool success = 1;
+  string vm_uuid = 2;
+  string error = 3;
+}
+
+message DeleteVMRequest {
+  string name_or_uuid = 1;
+}
+
+message DeleteVMResponse {
+  bool success = 1;
+  string error = 2;
+}
+
+message StartVMRequest {
+  string name_or_uuid = 1;
+}
+
+message StartVMResponse {
+  bool success = 1;
+  string error = 2;
+}
+
+message StopVMRequest {
+  string name_or_uuid = 1;
+}
+
+message StopVMResponse {
+  bool success = 1;
+  string error = 2;
+}
+
+message RebootVMRequest {
+  string name_or_uuid = 1;
+}
+
+message RebootVMResponse {
+  bool success = 1;
+  string error = 2;
+}
+
+// === VM Queries ===
+
+message ListVMsRequest {}
+
+message ListVMsResponse {
+  repeated VMInfo vms = 1;
+}
+
+message GetVMRequest {
+  string name_or_uuid = 1;
+}
+
+message GetVMResponse {
+  VMInfo vm = 1;
+}
+
+message GetVMXMLRequest {
+  string name_or_uuid = 1;
+}
+
+message GetVMXMLResponse {
+  string xml = 1;
+}
+
+// === Placement ===
+
+message PlaceVMRequest {
+  uint32 memory = 1;
+  uint32 cpu_count = 2;
+  uint64 disk_size = 3;
+  map<string, string> required_labels = 4;
+  map<string, string> preferred_labels = 5;
+}
+
+message PlaceVMResponse {
+  bool placed = 1;
+  string host = 2;
+  string reason = 3;
+  ResourceUsage projected = 4;
+}
+
+// === Health & Resources ===
+
+message GetHostInfoRequest {}
+
+message HostInfo {
+  string name = 1;
+  string address = 2;
+  map<string, string> labels = 3;
+  bool healthy = 4;
+  ResourceUsage resources = 5;
+  repeated VMInfo vms = 6;
+}
+
+message ResourceUsage {
+  uint64 total_memory = 1;
+  uint64 used_memory = 2;
+  uint32 total_cpus = 3;
+  uint32 used_cpus = 4;
+  uint64 total_disk = 5;
+  uint64 used_disk = 6;
+}
+
+message VMInfo {
+  string name = 1;
+  string uuid = 2;
+  string state = 3;
+  int32 id = 4;
+  string host = 5;
+}
+
+// === Health Watch ===
+
+message HealthPing {}
+
+message HealthEvent {
+  bool healthy = 1;
+  string host = 2;
+  string message = 3;
+  int64 timestamp = 4;
+}
+
+// === Image Cache ===
+
+message PullImageRequest {
+  string url = 1;
+  string expected_sha256 = 2;
+}
+
+message PullImageProgress {
+  string state = 1;       // "downloading", "verifying", "cached", "error"
+  uint64 bytes_downloaded = 2;
+  uint64 total_bytes = 3;
+  string local_path = 4;
+  string error = 5;
+}
+
+message CacheStatusRequest {}
+
+message CacheStatusResponse {
+  repeated CachedImage images = 1;
+  uint64 total_size = 2;
+}
+
+message CachedImage {
+  string url = 1;
+  string local_path = 2;
+  string sha256 = 3;
+  uint64 size = 4;
+  int64 cached_at = 5;
+}

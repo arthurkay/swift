@@ -71,6 +71,34 @@ func (d UserData) CreateProjectFiles() error {
 	return nil
 }
 
+// CreateProjectDir creates the project directory for a VM and initializes
+// user-data and meta-data files. Returns the project directory path.
+func CreateProjectDir(name string) (string, error) {
+	s := slug.Make(name)
+	projectDir, err := config.VMPath(s)
+	if err != nil {
+		return "", fmt.Errorf("get project path: %w", err)
+	}
+	if err := os.MkdirAll(projectDir, config.FilePermission); err != nil {
+		return "", fmt.Errorf("create project dir: %w", err)
+	}
+	for _, f := range []string{"user-data", "meta-data"} {
+		if _, err := os.Create(projectDir + "/" + f); err != nil {
+			return "", fmt.Errorf("create %s: %w", f, err)
+		}
+	}
+	return projectDir, nil
+}
+
+// WriteCloudInit writes cloud-init user-data to the project directory.
+// If userData is empty, a minimal default is generated.
+func WriteCloudInit(projectDir, name, userData string) error {
+	if userData == "" {
+		userData = fmt.Sprintf("#cloud-config\nhostname: %s\nmanage_etc_hosts: true\n", name)
+	}
+	return os.WriteFile(projectDir+"/user-data", []byte(userData), 0644)
+}
+
 // CloudConfig renders the cloud-init user-data template and writes it to disk.
 func (d UserData) CloudConfig() error {
 	projectDir, err := config.VMPath(d.Slug)

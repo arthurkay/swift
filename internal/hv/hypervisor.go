@@ -51,11 +51,16 @@ type LibvirtHypervisor struct {
 	conn *libvirt.Connect
 }
 
-// Connect establishes a connection to the libvirt daemon.
+// Connect establishes a connection to the local libvirt daemon.
 func Connect() (*LibvirtHypervisor, error) {
-	conn, err := libvirt.NewConnect("qemu:///system")
+	return ConnectURI("qemu:///system")
+}
+
+// ConnectURI establishes a connection to a libvirt daemon at the given URI.
+func ConnectURI(uri string) (*LibvirtHypervisor, error) {
+	conn, err := libvirt.NewConnect(uri)
 	if err != nil {
-		return nil, fmt.Errorf("connect to libvirt: %w", err)
+		return nil, fmt.Errorf("connect to libvirt %q: %w", uri, err)
 	}
 	return &LibvirtHypervisor{conn: conn}, nil
 }

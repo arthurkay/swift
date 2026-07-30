@@ -72,6 +72,7 @@ func main() {
 	rootCmd.AddCommand(showCmd)
 	rootCmd.AddCommand(versionCmd)
 	rootCmd.AddCommand(networkCmd)
+	rootCmd.AddCommand(clusterCmd)
 
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
